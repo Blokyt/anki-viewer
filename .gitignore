@@ -1,0 +1,24 @@
+# Fichiers de collection Anki (très volumineux)
+*.colpkg
+*.apkg
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dossiers de dépendances Node.js (si vous en utilisez)
+node_modules/
+package-lock.json
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.log
+
+# Fichiers de configuration IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
