@@ -9,7 +9,8 @@ let appState = {
     cardCountByDeck: {},  // Computed: deckId -> count
     currentDeck: null,
     searchQuery: '',
-    displayedCards: []
+    displayedCards: [],
+    currentModalCard: null // Track currently open card
 };
 
 // DOM Elements
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function cacheElements() {
     elements.searchInput = document.getElementById('searchInput');
     elements.clearSearch = document.getElementById('clearSearch');
+    elements.exportJSON = document.getElementById('exportJSON');
     elements.deckTree = document.getElementById('deckTree');
     elements.cardsGrid = document.getElementById('cardsGrid');
     elements.currentDeckName = document.getElementById('currentDeckName');
@@ -38,6 +40,7 @@ function cacheElements() {
     elements.modalFront = document.getElementById('modalFront');
     elements.modalBack = document.getElementById('modalBack');
     elements.modalClose = document.getElementById('modalClose');
+    elements.copyJSON = document.getElementById('copyJSON');
     elements.collapseAll = document.getElementById('collapseAll');
     elements.resizeHandle = document.getElementById('resizeHandle');
     elements.sidebar = document.getElementById('sidebar');
@@ -51,11 +54,21 @@ function setupEventListeners() {
     elements.searchInput.addEventListener('input', debounce(handleSearch, 300));
     elements.clearSearch.addEventListener('click', clearSearch);
 
+    // Export
+    if (elements.exportJSON) {
+        elements.exportJSON.addEventListener('click', exportFilteredCards);
+    }
+
     // Modal
     elements.modalClose.addEventListener('click', closeModal);
     elements.modalOverlay.addEventListener('click', (e) => {
         if (e.target === elements.modalOverlay) closeModal();
     });
+
+    // Copy JSON
+    if (elements.copyJSON) {
+        elements.copyJSON.addEventListener('click', copyCurrentCardJSON);
+    }
 
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeyboard);
@@ -397,6 +410,8 @@ function createCardElement(card) {
  * Open card modal
  */
 function openCardModal(card) {
+    appState.currentModalCard = card; // Store current card
+
     elements.modalFront.innerHTML = card.front;
     elements.modalBack.innerHTML = card.back;
 
@@ -413,6 +428,7 @@ function openCardModal(card) {
  * Close card modal
  */
 function closeModal() {
+    appState.currentModalCard = null; // Clear current card
     elements.modalOverlay.classList.remove('visible');
     document.body.style.overflow = '';
 }
@@ -488,6 +504,62 @@ function setupResizer() {
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
     });
+}
+
+/**
+ * Export filtered cards to JSON
+ */
+function exportFilteredCards() {
+    const cardsToExport = appState.displayedCards;
+
+    if (!cardsToExport || cardsToExport.length === 0) {
+        alert('Aucune carte à exporter.');
+        return;
+    }
+
+    const dataStr = JSON.stringify(cardsToExport, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = 'anki_export.json';
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+}
+
+/**
+ * Copy current modal card JSON to clipboard
+ */
+async function copyCurrentCardJSON() {
+    if (!appState.currentModalCard) return;
+
+    const data = JSON.stringify(appState.currentModalCard, null, 2);
+
+    try {
+        await navigator.clipboard.writeText(data);
+
+        // Visual feedback
+        const originalText = elements.copyJSON.innerHTML;
+        elements.copyJSON.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Copié !</span>
+        `;
+        elements.copyJSON.style.borderColor = '#10B981'; // Green
+        elements.copyJSON.style.color = '#10B981';
+
+        setTimeout(() => {
+            elements.copyJSON.innerHTML = originalText;
+            elements.copyJSON.style.borderColor = '';
+            elements.copyJSON.style.color = '';
+        }, 2000);
+
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+        alert('Erreur lors de la copie');
+    }
 }
 
 /**

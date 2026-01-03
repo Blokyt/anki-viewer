@@ -212,18 +212,19 @@ body {
     padding: 14px 12px;
 }
 
+/* CSS for .search-box input remains same */
 .search-box input::placeholder {
     color: rgba(255, 255, 255, 0.4);
 }
 
-.clear-search {
+/* Generic Icon Button */
+.btn-icon {
     background: none;
     border: none;
     color: rgba(255, 255, 255, 0.4);
     cursor: pointer;
     padding: 10px;
     border-radius: 50%;
-    opacity: 0;
     transition: all var(--transition-fast);
     min-width: 36px;
     min-height: 36px;
@@ -232,19 +233,30 @@ body {
     justify-content: center;
 }
 
-.search-box:focus-within .clear-search,
-.search-box input:not(:placeholder-shown)+.clear-search {
-    opacity: 1;
-}
-
-.clear-search:hover {
+.btn-icon:hover {
     color: white;
     background: rgba(255, 255, 255, 0.1);
 }
 
-.clear-search svg {
+.btn-icon svg {
     width: 16px;
     height: 16px;
+}
+
+/* Clear Search Specifics */
+#clearSearch {
+    opacity: 0;
+}
+
+.search-box:focus-within #clearSearch,
+.search-box input:not(:placeholder-shown)~#clearSearch {
+    opacity: 1;
+}
+
+/* Note: changed + to ~ because specific input+button might be disrupted if DOM changes, 
+   but here they are siblings. Using ID selector for specificity. */
+#clearSearch.hidden {
+    display: none;
 }
 
 /* Header Stats */
@@ -748,6 +760,9 @@ body {
     transition: transform var(--transition-normal);
     position: relative;
     box-shadow: var(--shadow-lg), 0 0 100px rgba(99, 102, 241, 0.2);
+    /* Flex layout for sticky footer */
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-overlay.visible .modal {
@@ -769,7 +784,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all var(--transition-fast);
-    z-index: 1;
+    z-index: 10;
 }
 
 .modal-close:hover {
@@ -786,8 +801,10 @@ body {
 
 .modal-content {
     padding: 36px;
-    max-height: 85vh;
     overflow-y: auto;
+    flex: 1;
+    /* Take remaining space */
+    /* Remove max-height as parent controls it */
 }
 
 .card-section {

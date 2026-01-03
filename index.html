@@ -31,11 +31,20 @@
                         <circle cx="11" cy="11" r="8"></circle>
                         <path d="M21 21l-4.35-4.35"></path>
                     </svg>
-                    <input type="text" id="searchInput" placeholder="Rechercher dans les cartes...">
-                    <button class="clear-search" id="clearSearch" title="Effacer">
+                    <input type="text" id="searchInput" placeholder="Rechercher dans les cartes..." autocomplete="off">
+                    <button id="clearSearch" class="btn-icon" title="Effacer la recherche">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                    <!-- NEW EXPORT BUTTON -->
+                    <button id="exportJSON" class="btn-icon" title="Exporter la liste affichée en JSON"
+                        style="margin-left: 8px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
                         </svg>
                     </button>
                 </div>
@@ -123,14 +132,26 @@
                     <div class="section-label">Réponse</div>
                     <div class="section-content" id="modalBack"></div>
                 </div>
-
+            </div>
+            <!-- NEW COPY BUTTON FOOTER -->
+            <div class="modal-footer"
+                style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
+                <button id="copyJSON" class="btn-secondary"
+                    style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="width: 16px; height: 16px;">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copier le JSON</span>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 
 </html>
