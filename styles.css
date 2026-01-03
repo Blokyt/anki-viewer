@@ -681,6 +681,23 @@ body {
     max-height: 120px;
     overflow: hidden;
     position: relative;
+    display: block;
+}
+
+/* Aggressively strip margins to ensure top alignment */
+.card-preview>* {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Hide leading breaks */
+.card-preview br:first-child {
+    display: none;
+}
+
+/* Also target paragraphs that might be first or second (after empty text) */
+.card-preview p:first-of-type {
+    margin-top: 0 !important;
 }
 
 /* Force uniform white color */
@@ -707,6 +724,19 @@ body {
     padding: 1px 4px;
     border-radius: 4px;
     font-weight: 600;
+}
+
+/* MathJax Highlight via \class{search-highlight}{...} */
+.search-highlight {
+    background-color: rgba(245, 158, 11, 0.4) !important;
+    /* Semi-transparent orange */
+    border-radius: 2px;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4);
+}
+
+/* Ensure transparency doesn't hide text */
+.search-highlight * {
+    fill: currentColor !important;
 }
 
 .card-item-tags {

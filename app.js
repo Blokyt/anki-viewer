@@ -383,19 +383,16 @@ function createCardElement(card) {
     const preview = document.createElement('div');
     preview.className = 'card-preview';
 
-    // Use frontClean (plain text, no HTML) for uniform display
-    let content = card.frontClean || card.front || 'Pas de contenu';
+    // Use card.front for proper rendering, fallback to clean/text if needed
+    let content = card.front || card.frontClean || 'Pas de contenu';
 
     // Highlight search terms if searching
     if (appState.searchQuery) {
-        const searchTerms = appState.searchQuery.toLowerCase().split(' ').filter(t => t);
-        for (const term of searchTerms) {
-            const regex = new RegExp(`(${term})`, 'gi');
-            content = content.replace(regex, '<mark>$1</mark>');
-        }
+        content = highlightTextSafe(content, appState.searchQuery);
         preview.innerHTML = content;
     } else {
-        preview.textContent = content;
+        // If no search, use innerHTML to render HTML/LaTeX properly
+        preview.innerHTML = content;
     }
 
     element.appendChild(preview);
@@ -407,13 +404,73 @@ function createCardElement(card) {
 }
 
 /**
+ * Helper to highlight text safely ignoring HTML tags and LaTeX
+ */
+function highlightTextSafe(content, query) {
+    if (!query) return content;
+
+    // Convert query specific terms to array
+    const terms = query.toLowerCase().split(/\s+/).filter(t => t);
+    if (terms.length === 0) return content;
+
+    // Create a single regex for all terms to avoid recursive highlighting
+    // Sort by length desc to match longest terms first
+    terms.sort((a, b) => b.length - a.length);
+
+    const escapedTerms = terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const termsPattern = escapedTerms.join('|');
+
+    // Regex for matching terms (case insensitive)
+    const termsRegex = new RegExp(`(${termsPattern})`, 'gi');
+    // Regex for LaTeX Highlighting: avoid matches preceded by backslash
+    const latexTermsRegex = new RegExp(`(?<!\\\\)(${termsPattern})`, 'gi');
+
+    // Pattern to split content:
+    // 1. HTML Tags
+    // 2. LaTeX Blocks
+    const splitPattern = /(\\\([\s\S]*?\\\)|\\\[[\s\S]*?\\\]|<[^>]+>)/g;
+
+    const parts = content.split(splitPattern);
+
+    return parts.map(part => {
+        // 1. HTML Tags -> Return as is
+        if (part.startsWith('<')) {
+            return part;
+        }
+
+        // 2. LaTeX Blocks -> Use {\class{search-highlight}{term}}
+        // Wrapping in braces {} ensures it works even as an argument to commands like \vec{}, ^, or _ without breaking syntax
+        if (part.startsWith('\\(') || part.startsWith('\\[')) {
+            try {
+                // Use single-pass replacement for all terms
+                return part.replace(latexTermsRegex, '{\\class{search-highlight}{$1}}');
+            } catch (e) {
+                return part; // Fallback if regex fails
+            }
+        }
+
+        // 3. Normal Text -> Use <mark>term</mark>
+        return part.replace(termsRegex, '<mark>$1</mark>');
+    }).join('');
+}
+
+/**
  * Open card modal
  */
 function openCardModal(card) {
     appState.currentModalCard = card; // Store current card
 
-    elements.modalFront.innerHTML = card.front;
-    elements.modalBack.innerHTML = card.back;
+    // Apply highlighting to modal content as well
+    let frontContent = card.front;
+    let backContent = card.back;
+
+    if (appState.searchQuery) {
+        frontContent = highlightTextSafe(frontContent, appState.searchQuery);
+        backContent = highlightTextSafe(backContent, appState.searchQuery);
+    }
+
+    elements.modalFront.innerHTML = frontContent;
+    elements.modalBack.innerHTML = backContent;
 
     elements.modalOverlay.classList.add('visible');
     document.body.style.overflow = 'hidden';
