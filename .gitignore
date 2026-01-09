@@ -1,7 +1,6 @@
 # Fichiers de collection Anki (très volumineux)
 *.colpkg
 *.apkg
-*.py
 
 # Fichiers système
 .DS_Store
@@ -23,3 +22,4 @@ package-lock.json
 *.swp
 *.swo
 *~
+*.py
