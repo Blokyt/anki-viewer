@@ -1,8 +1,7 @@
 # Fichiers de collection Anki (très volumineux)
 *.colpkg
 *.apkg
-data.json
-media/
+*.py
 
 # Fichiers système
 .DS_Store
